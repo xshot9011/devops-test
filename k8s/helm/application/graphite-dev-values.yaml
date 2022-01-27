@@ -1,0 +1,47 @@
+application:
+  namespace: default
+  image: graphiteapp/graphite-statsd
+  tag: latest
+  replicas: 1
+  port: 8080
+  ports:
+  - name: graphite-pickle
+    port: 2004
+    protocol: TCP
+    targetPort: 2004
+  - name: graphite-plain
+    port: 2003
+    protocol: TCP
+    targetPort: 2003
+  - name: graphite-udp
+    port: 2003
+    protocol: UDP
+    targetPort: 2003
+  - name: graphite-gui
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  - name: aggregate-plain
+    port: 2023
+    protocol: TCP
+    targetPort: 2023
+  - name: aggregate-pickl
+    port: 2024
+    protocol: TCP
+    targetPort: 2024
+  - name: statsd
+    port: 8125
+    protocol: UDP
+    targetPort: 8125
+  - name: statsd-admin
+    port: 8126
+    protocol: TCP
+    targetPort: 8126
+  # healthCheckPath: "/health"
+ingress:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  host: a4b9f2ef678e74d5cbfe36b0d7ba3f0d-992520144.ap-southeast-1.elb.amazonaws.com
+  path: /
+  serviceType: ClusterIP
+

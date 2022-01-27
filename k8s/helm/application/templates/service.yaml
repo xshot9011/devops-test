@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.application.namespace }}
+spec :
+  type: {{ .Values.ingress.serviceType }}
+  ports:
+  {{ range $i, $port := .Values.application.ports }}
+  {{- range $k, $v := . -}}
+  {{- if eq $k "name" -}}
+  - {{ $k }}: {{ $v }}
+  {{- end -}}
+  {{ if eq $k "port" }}
+    {{ $k }}: {{ $v }}
+  {{- end -}}
+  {{ if eq $k "protocol" }}
+    {{ $k }}: {{ $v }}
+  {{- end -}}
+  {{ if eq $k "targetPort" }}
+    {{ $k }}: {{ $v }}
+  {{ end -}}
+  {{ end -}}
+  {{- end }}
+  # - port: {{ .Values.application.port }}
+  #   targetPort: {{ .Values.application.port }}
+  selector:
+    app: {{ .Release.Name }}

@@ -87,3 +87,113 @@ services:
 
 - I use graphite official image to do `docker-compose.yaml`
 - On kubernetes platform, I use `/k8s/helm/application/graphite-dev-values.yaml` instead of `docker-compose.yaml` file
+
+# Use any IAC tools (Cloudformation, Terraform etc.) to prepare the infrastructure
+
+![architecture](./media/architecture/aws-devops-test.png)
+
+## Terraform
+
+### Folder structure
+
+```bash
+.
+├── c1-versions.tf
+├── c2-providers.tf
+├── c3-local-values-variables.tf
+├── c3-local-values.tf
+├── c4-vpc-module.tf
+├── c4-vpc-variables.tf
+├── c5-eks-module.tf
+├── c5-eks-variables.tf
+└── outputs.tf
+```
+
+- `c1-version.tf` contain remote storage backend as s3
+- `c2-providers.tf` contain provider (cloud aws) and profile of user
+- `c3-local-values-variables.tf` contain input for `c3-local-values.tf`
+- `c3-local-values.tf` contain common variable
+- `c4-vpc-module.tf` contain VPC information
+- `c4-vpc-variables.tf` contain input for VPC module
+- `c5-eks-module.tf` conrain EKS information
+- `c5-eks-variables.tf` contain input for EKS module
+- `outputs.tf` contain output of EKS, VPC module
+
+NOTE: you can override values by create file `<name>[.auto].tfvars`
+
+For Example:
+- `terraform.tfvars`
+    ```python
+    # Generic Variables
+
+    aws_region = "ap-southeast-1"
+    # will be used in naming format: ${business_divsion}-${environment}-${module_name}
+    business_divsion = "oouzu-exam"
+    environment      = "dev"
+    ```
+- `vpc.auto.tfvars`
+    ```python
+    # VPC Variables
+    vpc_name               = "oouzu-vpc"
+    vpc_cidr_block         = "10.0.0.0/16"
+    vpc_availability_zones = ["ap-southeast-1a", "ap-southeast-1b"]
+    vpc_public_subnets     = ["10.0.1.0/24", "10.0.2.0/24"]
+    vpc_private_subnets    = ["10.0.101.0/24", "10.0.102.0/24"]
+    vpc_enable_nat_gateway = true
+    vpc_single_nat_gateway = true
+    ```
+
+### Command:
+
+```bash
+terraform validate
+terraform plan
+terraform apply
+# To clean up
+terraform destroy
+```
+
+## Kubernetes
+
+### Folder structure
+
+```bash
+.
+└── helm
+    ├── application
+    │   ├── Chart.yaml
+    │   ├── README.md
+    │   ├── api-dev-values.yaml
+    │   ├── graphite-dev-values.yaml
+    │   └── templates
+    │       ├── deployment.yaml
+    │       ├── ingress.yaml
+    │       └── service.yaml
+    └── ingress-nginx
+        ├── README.md
+        └── values-dev.yaml
+```
+
+### Ingress-nginx
+
+To make use of accessing statsd application
+
+```bash
+cd k8s/helm/ingress-nginx/
+cat README.md
+```
+
+[README](./k8s/helm/ingress-nginx/README.md)
+
+### Install application
+
+```bash
+cd k8s/helm/application/
+cat README.md
+```
+
+[README](./k8s/helm/application/README.md)
+
+### Now you can access statsd UI via
+
+a4b9f2ef678e74d5cbfe36b0d7ba3f0d-992520144.ap-southeast-1.elb.amazonaws.com

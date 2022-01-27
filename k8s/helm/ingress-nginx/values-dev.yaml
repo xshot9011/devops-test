@@ -1,0 +1,10 @@
+controller:
+  config: {}
+  kind: DaemonSet
+  service:
+    type: LoadBalancer
+    annotations: {}
+  admissionWebhooks:
+    enabled: false
+defaultBackend:
+  enabled: true
