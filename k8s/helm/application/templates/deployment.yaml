@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.application.namespace }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.application.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Release.Name }}
+        image: {{ .Values.application.image }}:{{ .Values.application.tag }}
+        imagePullPolicy: Always
+        ports:
+        {{ range $i, $port := .Values.application.ports }}
+        {{- range $k, $v := . -}}
+        {{- if eq $k "name" -}}
+        - {{ $k }}: {{ $v }}
+        {{- end -}}
+        {{ if eq $k "port" }}
+          containerPort: {{ $v }}
+        {{- end -}}
+        {{ if eq $k "protocol" }}
+          {{ $k }}: {{ $v }}
+        {{ end -}}
+        {{ end -}}
+        {{- end }}
+        # - containerPort: {{ .Values.application.port }}
+        #   name: web-port
+        #   protocol: TCP
+        {{- if .Values.application.healthCheckPath }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.application.healthCheckPath }}
+            port: {{ .Values.application.port }}
+            scheme: HTTP
+        {{- end }}
+        {{- if .Values.application.healthCheckPath }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.application.healthCheckPath }}
+            port: {{ .Values.application.port }}
+            scheme: HTTP
+        {{- end }}
+        {{- if .Values.extraEnv }}
+        env:
+        {{- range $key, $value := .Values.extraEnv }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}

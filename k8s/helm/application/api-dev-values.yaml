@@ -1,0 +1,22 @@
+application:
+  namespace: default
+  image: bigdev2000/api
+  tag: latest
+  replicas: 1
+  port: 8080
+  ports:
+  - name: api-port
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  # healthCheckPath: "/health"
+ingress:
+  annotations: {}
+  host: example.com
+  path: /
+  serviceType: ClusterIP
+extraEnv:
+  ENVIRONMENT: dev
+  STATSD_PORT: 8125
+  STATSD_URL: graphite.default.svc.cluster.local
+
