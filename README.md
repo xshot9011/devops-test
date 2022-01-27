@@ -66,3 +66,24 @@ CMD [ "start" ]
       STATSD_PORT: 8125
       STATSD_URL: graphite.default.svc.cluster.local
     ```
+
+# Docker-compose
+
+Add a `docker-compose.yml` file to setup Node app, `statsd` & the backend. Applicants can use any backends for `statsd` (eg: `Graphite`).
+
+```yaml
+version: "3.8"
+services:
+  graphite:
+    image: graphiteapp/graphite-statsd
+    ports:
+    - "80:80"
+    - "2003-2004:2003-2004"
+    - "2023-2024:2023-2024"
+    - "8125:8125/udp"
+    - "8126:8126"
+
+```
+
+- I use graphite official image to do `docker-compose.yaml`
+- On kubernetes platform, I use `/k8s/helm/application/graphite-dev-values.yaml` instead of `docker-compose.yaml` file
